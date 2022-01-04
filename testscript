@@ -1,0 +1,52 @@
+#!/bin/bash
+# Working with users
+
+if [ -n "$1" ]
+then
+echo
+while [ -n "$1" ]
+do
+case "$1" in
+
+-h) echo "-h Info" ;
+echo "-c Create a user" ;
+echo "-d Delete a user" ;
+echo "-e Check if the user exists" ;;
+
+-c) echo -n "Enter user name: " ;
+read username ;
+echo -n "Enter password: " ;
+read -s userpassword ;
+echo $'\n';
+sudo -- useradd $username -p $userpassword -d /home/$username -m ;
+echo -n "Enter the number of environment variables: " ;
+read count ;
+while [ $count -gt 0 ]
+do
+count=$[ $count - 1 ];
+echo -n "Enter the environment variable: " ;
+read variable ;
+echo "export ${variable}" | sudo tee -a /home/${username}/.bashrc ; 
+done ;;
+
+-d) echo -n "Enter the user name to delete: " ;
+read username ;
+sudo -- userdel -r $username ;;
+
+-e) echo -n "Enter a username to search for: " ;
+read username ;
+if id $username &>/dev/null; 
+then
+echo "User found" ;
+sudo su $username -c 'echo $SHELL' ;
+else
+echo "User not found" ;
+fi ;;
+
+*) echo "$1 is not an option" ;;
+esac
+shift
+done
+else
+echo "No parameters found."
+fi
